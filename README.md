@@ -145,7 +145,7 @@ MIT License
 
 ## Author
 
-Cahyo (Internship at DPRD)
+Cahyo
 
 ## Notes
 
