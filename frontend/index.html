@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi Wajah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 text-center">
+                📷 Sistem Absensi Wajah
+            </h1>
+            <p class="text-center text-gray-600 mt-2">Face Recognition Attendance System</p>
+            <div id="status" class="text-center mt-4"></div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <button onclick="showSection('register')" 
+                    class="bg-indigo-600 text-white px-6 py-4 rounded-lg hover:bg-indigo-700 font-semibold">
+                👤 Registrasi Pengguna Baru
+            </button>
+            <button onclick="showSection('attend')" 
+                    class="bg-green-600 text-white px-6 py-4 rounded-lg hover:bg-green-700 font-semibold">
+                ✓ Absensi
+            </button>
+        </div>
+
+        <!-- Message Area -->
+        <div id="message" class="hidden mb-6 p-4 rounded-lg"></div>
+
+        <!-- Register Section -->
+        <div id="registerSection" class="hidden bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Registrasi Pengguna Baru</h2>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap:</label>
+                <input type="text" id="userName" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                       placeholder="Contoh: John Doe">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">ID / NIP:</label>
+                <input type="text" id="userId" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                       placeholder="Contoh: EMP001">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Kamera:</label>
+                <div class="relative">
+                    <video id="registerVideo" autoplay playsinline 
+                           class="w-full rounded-lg bg-black" style="max-height: 400px;"></video>
+                    <canvas id="registerCanvas" class="hidden"></canvas>
+                    <img id="registerPreview" class="hidden w-full rounded-lg" />
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="startCamera('register')" 
+                        class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    📷 Buka Kamera
+                </button>
+                <button onclick="capturePhoto('register')" 
+                        class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                    📸 Ambil Foto
+                </button>
+                <button onclick="retakePhoto('register')" 
+                        class="flex-1 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">
+                    🔄 Ulangi
+                </button>
+            </div>
+
+            <div class="flex gap-2 mt-4">
+                <button onclick="showSection('home')" 
+                        class="flex-1 bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 font-semibold">
+                    Batal
+                </button>
+                <button onclick="registerUser()" 
+                        class="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-semibold">
+                    Daftar
+                </button>
+            </div>
+        </div>
+
+        <!-- Attend Section -->
+        <div id="attendSection" class="hidden bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Absensi Wajah</h2>
+            
+            <div class="mb-4">
+                <div class="relative">
+                    <video id="attendVideo" autoplay playsinline 
+                           class="w-full rounded-lg bg-black" style="max-height: 400px;"></video>
+                    <canvas id="attendCanvas" class="hidden"></canvas>
+                    <img id="attendPreview" class="hidden w-full rounded-lg" />
+                </div>
+            </div>
+
+            <div class="flex gap-2 mb-4">
+                <button onclick="startCamera('attend')" 
+                        class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    📷 Buka Kamera
+                </button>
+                <button onclick="capturePhoto('attend')" 
+                        class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                    📸 Ambil Foto
+                </button>
+                <button onclick="retakePhoto('attend')" 
+                        class="flex-1 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">
+                    🔄 Ulangi
+                </button>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="showSection('home')" 
+                        class="flex-1 bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 font-semibold">
+                    Batal
+                </button>
+                <button onclick="doAttendance()" 
+                        class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold">
+                    Absen Sekarang
+                </button>
+            </div>
+        </div>
+
+        <!-- Users List -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">👥 Pengguna Terdaftar</h2>
+                <button onclick="clearAllData()" class="text-sm text-red-600 hover:text-red-700">
+                    🗑️ Hapus Semua Data
+                </button>
+            </div>
+            <div id="usersList"></div>
+        </div>
+
+        <!-- Attendance Records -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">📋 Riwayat Absensi Hari Ini</h2>
+            <div id="attendanceList"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+        let currentStream = null;
+        let capturedImages = {
+            register: null,
+            attend: null
+        };
+
+        // Cek koneksi ke backend
+        async function checkBackend() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                if (data.status === 'ok' && data.model_loaded) {
+                    showStatus('✓ Terhubung ke server', 'success');
+                } else {
+                    showStatus('⚠️ Server hidup tapi model belum ter-load', 'warning');
+                }
+            } catch (error) {
+                showStatus('✗ Tidak dapat terhubung ke server Python. Pastikan backend sudah berjalan!', 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            const colors = {
+                success: 'text-green-600',
+                error: 'text-red-600',
+                warning: 'text-yellow-600'
+            };
+            statusDiv.className = `text-sm font-semibold ${colors[type]}`;
+            statusDiv.textContent = message;
+        }
+
+        function showMessage(message, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.className = `mb-6 p-4 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+            msgDiv.textContent = message;
+            msgDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                msgDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showSection(section) {
+            stopCamera();
+            document.getElementById('registerSection').classList.add('hidden');
+            document.getElementById('attendSection').classList.add('hidden');
+            
+            if (section === 'register') {
+                document.getElementById('registerSection').classList.remove('hidden');
+            } else if (section === 'attend') {
+                document.getElementById('attendSection').classList.remove('hidden');
+            }
+            
+            loadUsers();
+            loadAttendance();
+        }
+
+        async function startCamera(mode) {
+            try {
+                stopCamera();
+                const video = document.getElementById(`${mode}Video`);
+                currentStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user' } 
+                });
+                video.srcObject = currentStream;
+                video.classList.remove('hidden');
+                document.getElementById(`${mode}Preview`).classList.add('hidden');
+            } catch (error) {
+                showMessage('Tidak dapat mengakses kamera!', 'error');
+            }
+        }
+
+        function stopCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+        }
+
+        function capturePhoto(mode) {
+            const video = document.getElementById(`${mode}Video`);
+            const canvas = document.getElementById(`${mode}Canvas`);
+            const preview = document.getElementById(`${mode}Preview`);
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            
+            const imageData = canvas.toDataURL('image/jpeg');
+            capturedImages[mode] = imageData;
+            
+            preview.src = imageData;
+            preview.classList.remove('hidden');
+            video.classList.add('hidden');
+            stopCamera();
+            
+            showMessage('✓ Foto berhasil diambil!', 'success');
+        }
+
+        function retakePhoto(mode) {
+            capturedImages[mode] = null;
+            document.getElementById(`${mode}Preview`).classList.add('hidden');
+            startCamera(mode);
+        }
+
+        async function registerUser() {
+            const name = document.getElementById('userName').value.trim();
+            const id = document.getElementById('userId').value.trim();
+            const image = capturedImages.register;
+            
+            if (!name || !id) {
+                showMessage('Nama dan ID harus diisi!', 'error');
+                return;
+            }
+            
+            if (!image) {
+                showMessage('Silakan ambil foto terlebih dahulu!', 'error');
+                return;
+            }
+            
+            showMessage('⏳ Memproses... Mohon tunggu', 'success');
+            
+            try {
+                // Kirim ke backend untuk extract embedding
+                const response = await fetch(`${API_URL}/extract-embedding`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: image })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    showMessage(`Error: ${data.error}`, 'error');
+                    return;
+                }
+                
+                // Simpan user ke localStorage
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                users.push({
+                    id: id,
+                    name: name,
+                    embedding: data.embedding,
+                    photo: image,
+                    registeredAt: new Date().toISOString()
+                });
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                showMessage(`✓ ${name} berhasil terdaftar!`, 'success');
+                
+                // Reset form
+                document.getElementById('userName').value = '';
+                document.getElementById('userId').value = '';
+                capturedImages.register = null;
+                document.getElementById('registerPreview').classList.add('hidden');
+                
+                setTimeout(() => showSection('home'), 2000);
+            } catch (error) {
+                showMessage('Gagal menghubungi server. Pastikan backend berjalan!', 'error');
+            }
+        }
+
+        async function doAttendance() {
+            const image = capturedImages.attend;
+            
+            if (!image) {
+                showMessage('Silakan ambil foto terlebih dahulu!', 'error');
+                return;
+            }
+            
+            showMessage('⏳ Mencari wajah... Mohon tunggu', 'success');
+            
+            try {
+                // Extract embedding dari foto
+                const response = await fetch(`${API_URL}/extract-embedding`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: image })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    showMessage(`Error: ${data.error}`, 'error');
+                    return;
+                }
+                
+                // Bandingkan dengan semua user yang terdaftar
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                
+                if (users.length === 0) {
+                    showMessage('Belum ada pengguna terdaftar!', 'error');
+                    return;
+                }
+                
+                let bestMatch = null;
+                let bestSimilarity = 0;
+                
+                for (const user of users) {
+                    const compareResponse = await fetch(`${API_URL}/compare-faces`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            embedding1: data.embedding,
+                            embedding2: user.embedding
+                        })
+                    });
+                    
+                    const compareData = await compareResponse.json();
+                    
+                    if (compareData.similarity > bestSimilarity) {
+                        bestSimilarity = compareData.similarity;
+                        bestMatch = user;
+                    }
+                }
+                
+                const threshold = 0.6;
+                
+                if (bestSimilarity > threshold) {
+                    // Cek apakah sudah absen hari ini
+                    const attendance = JSON.parse(localStorage.getItem('attendance') || '[]');
+                    const today = new Date().toDateString();
+                    const alreadyAttended = attendance.some(
+                        a => a.userId === bestMatch.id && new Date(a.timestamp).toDateString() === today
+                    );
+                    
+                    if (alreadyAttended) {
+                        showMessage(`${bestMatch.name} sudah absen hari ini!`, 'error');
+                    } else {
+                        attendance.push({
+                            userId: bestMatch.id,
+                            userName: bestMatch.name,
+                            timestamp: new Date().toISOString(),
+                            photo: image,
+                            similarity: bestSimilarity
+                        });
+                        localStorage.setItem('attendance', JSON.stringify(attendance));
+                        
+                        showMessage(`✓ Selamat datang, ${bestMatch.name}! Absensi berhasil (${(bestSimilarity * 100).toFixed(0)}%)`, 'success');
+                        
+                        setTimeout(() => showSection('home'), 2000);
+                    }
+                } else {
+                    showMessage('Wajah tidak dikenali. Silakan registrasi terlebih dahulu!', 'error');
+                }
+                
+            } catch (error) {
+                showMessage('Gagal menghubungi server!', 'error');
+            }
+        }
+
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const div = document.getElementById('usersList');
+            
+            if (users.length === 0) {
+                div.innerHTML = '<p class="text-gray-500 text-center py-4">Belum ada pengguna terdaftar</p>';
+                return;
+            }
+            
+            div.innerHTML = users.map(user => `
+                <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg mb-2">
+                    <img src="${user.photo}" class="w-12 h-12 rounded-full object-cover" />
+                    <div class="flex-1">
+                        <div class="font-semibold">${user.name}</div>
+                        <div class="text-sm text-gray-600">ID: ${user.id}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadAttendance() {
+            const attendance = JSON.parse(localStorage.getItem('attendance') || '[]');
+            const today = new Date().toDateString();
+            const todayAttendance = attendance.filter(
+                a => new Date(a.timestamp).toDateString() === today
+            );
+            
+            const div = document.getElementById('attendanceList');
+            
+            if (todayAttendance.length === 0) {
+                div.innerHTML = '<p class="text-gray-500 text-center py-4">Belum ada absensi hari ini</p>';
+                return;
+            }
+            
+            div.innerHTML = todayAttendance.map(a => `
+                <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg mb-2">
+                    <img src="${a.photo}" class="w-12 h-12 rounded-full object-cover" />
+                    <div class="flex-1">
+                        <div class="font-semibold">${a.userName}</div>
+                        <div class="text-sm text-gray-600">${new Date(a.timestamp).toLocaleTimeString('id-ID')}</div>
+                    </div>
+                    <div class="text-sm text-green-600">
+                        ${(a.similarity * 100).toFixed(0)}%
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearAllData() {
+            if (confirm('Hapus semua data? Tindakan ini tidak dapat dibatalkan!')) {
+                localStorage.removeItem('users');
+                localStorage.removeItem('attendance');
+                loadUsers();
+                loadAttendance();
+                showMessage('✓ Semua data berhasil dihapus', 'success');
+            }
+        }
+
+        // Init
+        checkBackend();
+        loadUsers();
+        loadAttendance();
+        setInterval(checkBackend, 10000); // Cek setiap 10 detik
+    </script>
+</body>
+</html>
